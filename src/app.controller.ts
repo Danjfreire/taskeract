@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -11,7 +11,7 @@ export class AppController {
   }
 
   @Get('/test')
-  async testDb() {
-    return await this.appService.testDb();
+  async createUser() {
+    return await this.appService.createUser();
   }
 }
