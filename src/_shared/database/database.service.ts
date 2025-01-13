@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Client, QueryConfig } from 'pg';
+import { Client, QueryConfig, QueryResult } from 'pg';
 
 @Injectable()
 export class DatabaseService {
-  public async query(query: string | QueryConfig) {
+  public async query<T>(query: string | QueryConfig): Promise<QueryResult<T>> {
     const dbClient = await this.getNewClient();
 
     try {
