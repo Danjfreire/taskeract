@@ -7,6 +7,7 @@ import { CREATE_TABLE_USERS } from 'src/_shared/test_utils/db_test_queries/creat
 import { config } from 'dotenv';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserSchema } from '../schemas/user.schema';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -35,7 +36,7 @@ describe('UsersController (e2e)', () => {
   });
 
   it('POST - v1/users should create a user', async () => {
-    const createUserDto = {
+    const createUserDto: CreateUserDto = {
       name: 'John Doe',
       email: 'john.doe@example.com',
       password: 'password123',
