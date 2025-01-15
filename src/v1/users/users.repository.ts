@@ -22,6 +22,28 @@ export class UsersRepository {
     return this.convert(res.rows[0]);
   }
 
+  async findUserById(userId: number): Promise<User | null> {
+    const res = await this.database.query<UserSchema>({
+      text: 'SELECT * FROM users WHERE id = $1',
+      values: [userId],
+    });
+
+    if (res.rows.length === 0) {
+      return null;
+    }
+
+    return this.convert(res.rows[0]);
+  }
+
+  async updateUser(userId: number, user: User): Promise<User> {
+    const res = await this.database.query<UserSchema>({
+      text: 'UPDATE users SET name = $1, email = $2, role = $3 WHERE id = $4 RETURNING *',
+      values: [user.name, user.email, user.role, userId],
+    });
+
+    return this.convert(res.rows[0]);
+  }
+
   private convert(schema: UserSchema): User {
     return {
       id: schema.id,
