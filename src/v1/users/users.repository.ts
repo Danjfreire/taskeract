@@ -22,6 +22,14 @@ export class UsersRepository {
     return this.convert(res.rows[0]);
   }
 
+  async listUsers(): Promise<User[]> {
+    const res = await this.database.query<UserSchema>({
+      text: 'SELECT * FROM users',
+    });
+
+    return res.rows.map((row) => this.convert(row));
+  }
+
   async findUserById(userId: number): Promise<User | null> {
     const res = await this.database.query<UserSchema>({
       text: 'SELECT * FROM users WHERE id = $1',

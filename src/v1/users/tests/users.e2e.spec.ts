@@ -8,6 +8,7 @@ import { config } from 'dotenv';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserSchema } from '../schemas/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
+import exp from 'constants';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -26,12 +27,11 @@ describe('UsersController (e2e)', () => {
     await dbUtils.query(CREATE_TABLE_USERS);
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await dbUtils.truncateTable('users');
   });
 
   afterAll(async () => {
-    await dbUtils.dropTable('users');
     await app.close();
   });
 
@@ -53,6 +53,49 @@ describe('UsersController (e2e)', () => {
     expect(response.body.name).toBe(createUserDto.name);
     expect(response.body.email).toBe(createUserDto.email);
     expect(response.body.role).toBe(createUserDto.role);
+  });
+
+  it('GET - v1/users should return a list ofuser', async () => {
+    const registeredUsers = [
+      {
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        password: 'password123',
+        role: 'worker',
+      },
+      {
+        name: 'Anna Doe',
+        email: 'anna.doe@example.com',
+        password: 'password123',
+        role: 'worker',
+      },
+    ];
+
+    for (const user of registeredUsers) {
+      await dbUtils.query<UserSchema>({
+        text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id;',
+        values: [user.name, user.email, user.password, user.role],
+      });
+    }
+
+    const response = await request(app.getHttpServer())
+      .get(`/v1/users`)
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+    expect(response.body.length).toBe(2);
+    expect(response.body).toContainEqual({
+      id: expect.any(Number),
+      name: registeredUsers[0].name,
+      email: registeredUsers[0].email,
+      role: registeredUsers[0].role,
+    });
+    expect(response.body).toContainEqual({
+      id: expect.any(Number),
+      name: registeredUsers[1].name,
+      email: registeredUsers[1].email,
+      role: registeredUsers[1].role,
+    });
   });
 
   it('PUT - v1/users/:id should update a user', async () => {

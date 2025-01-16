@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   NotFoundException,
   Param,
   Post,
@@ -18,6 +19,12 @@ export class UsersController {
     const user = await this.usersService.createUser(body);
 
     return user;
+  }
+
+  @Get()
+  async listUsers() {
+    const users = await this.usersService.listUsers();
+    return users;
   }
 
   @Put(':id')

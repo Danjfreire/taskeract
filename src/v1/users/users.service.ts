@@ -20,6 +20,12 @@ export class UsersService {
     });
   }
 
+  async listUsers() {
+    const users = await this.usersRepository.listUsers();
+
+    return users;
+  }
+
   async updateUser(userId: number, dto: UpdateUserDto): Promise<Result<User>> {
     const targetUser = await this.usersRepository.findUserById(userId);
 
