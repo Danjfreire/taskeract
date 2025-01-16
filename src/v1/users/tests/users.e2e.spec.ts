@@ -8,7 +8,6 @@ import { config } from 'dotenv';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserSchema } from '../schemas/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
-import exp from 'constants';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -89,12 +88,14 @@ describe('UsersController (e2e)', () => {
       name: registeredUsers[0].name,
       email: registeredUsers[0].email,
       role: registeredUsers[0].role,
+      is_active: true,
     });
     expect(response.body).toContainEqual({
       id: expect.any(Number),
       name: registeredUsers[1].name,
       email: registeredUsers[1].email,
       role: registeredUsers[1].role,
+      is_active: true,
     });
   });
 

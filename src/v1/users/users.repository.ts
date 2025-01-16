@@ -58,6 +58,7 @@ export class UsersRepository {
       name: schema.name,
       email: schema.email,
       role: schema.role,
+      is_active: schema.is_active,
     };
   }
 }

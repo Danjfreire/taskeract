@@ -4,4 +4,5 @@ export interface UserSchema {
   email: string;
   password: string;
   role: string;
+  is_active: boolean;
 }
