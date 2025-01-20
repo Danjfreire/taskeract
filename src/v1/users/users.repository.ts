@@ -45,11 +45,18 @@ export class UsersRepository {
 
   async updateUser(userId: number, user: User): Promise<User> {
     const res = await this.database.query<UserSchema>({
-      text: 'UPDATE users SET name = $1, email = $2, role = $3 WHERE id = $4 RETURNING *',
-      values: [user.name, user.email, user.role, userId],
+      text: 'UPDATE users SET name = $1, email = $2, role = $3, is_active = $4 WHERE id = $5 RETURNING *',
+      values: [user.name, user.email, user.role, user.is_active, userId],
     });
 
     return this.convert(res.rows[0]);
+  }
+
+  async deleteUser(userId: number) {
+    await this.database.query({
+      text: 'DELETE FROM users WHERE id = $1',
+      values: [userId],
+    });
   }
 
   private convert(schema: UserSchema): User {

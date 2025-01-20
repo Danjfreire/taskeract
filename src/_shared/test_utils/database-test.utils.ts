@@ -21,6 +21,12 @@ export class DatabaseTestUtils {
     });
   }
 
+  public async dropTable(tableName: string) {
+    await this.query({
+      text: `DROP TABLE ${tableName}`,
+    });
+  }
+
   private async getNewClient(): Promise<Client> {
     const client = new Client({
       host: process.env.POSTGRES_HOST,

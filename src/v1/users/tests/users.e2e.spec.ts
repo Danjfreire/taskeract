@@ -14,7 +14,7 @@ describe('UsersController (e2e)', () => {
   let dbUtils: DatabaseTestUtils;
 
   beforeAll(async () => {
-    config({ path: '.env.development' });
+    config({ path: '.env.test' });
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [UsersModule],
     }).compile();
@@ -23,10 +23,11 @@ describe('UsersController (e2e)', () => {
     await app.init();
 
     dbUtils = new DatabaseTestUtils();
+    await dbUtils.dropTable('users');
     await dbUtils.query(CREATE_TABLE_USERS);
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await dbUtils.truncateTable('users');
   });
 
@@ -54,7 +55,7 @@ describe('UsersController (e2e)', () => {
     expect(response.body.role).toBe(createUserDto.role);
   });
 
-  it('GET - v1/users should return a list ofuser', async () => {
+  it('GET - v1/users should return a list of users', async () => {
     const registeredUsers = [
       {
         name: 'John Doe',
@@ -72,8 +73,8 @@ describe('UsersController (e2e)', () => {
 
     for (const user of registeredUsers) {
       await dbUtils.query<UserSchema>({
-        text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id;',
-        values: [user.name, user.email, user.password, user.role],
+        text: 'INSERT INTO users (name, email, password, role, is_active) VALUES ($1, $2, $3, $4, $5) RETURNING id;',
+        values: [user.name, user.email, user.password, user.role, true],
       });
     }
 
@@ -135,6 +136,43 @@ describe('UsersController (e2e)', () => {
     expect(response.body.role).toBe(registeredUser.role);
   });
 
+  it('PUT - v1/users/:id should deactivate a user', async () => {
+    const registeredUser = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: 'password123',
+      role: 'worker',
+    };
+
+    const res = await dbUtils.query<UserSchema>({
+      text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id;',
+      values: [
+        registeredUser.name,
+        registeredUser.email,
+        registeredUser.password,
+        registeredUser.role,
+      ],
+    });
+
+    const userId = res.rows[0].id;
+
+    const updateUserDto: UpdateUserDto = {
+      is_active: false,
+    };
+
+    const response = await request(app.getHttpServer())
+      .put(`/v1/users/${userId}`)
+      .send(updateUserDto)
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+    expect(response.body.id).toBeDefined();
+    expect(response.body.name).toBe(registeredUser.name);
+    expect(response.body.email).toBe(registeredUser.email);
+    expect(response.body.role).toBe(registeredUser.role);
+    expect(response.body.is_active).toBe(false);
+  });
+
   it('PUT - v1/users/:id should throw not found if it tries to update a nonexisting user', async () => {
     const updateUserDto: UpdateUserDto = {
       name: 'John Doesnt',
@@ -144,5 +182,34 @@ describe('UsersController (e2e)', () => {
       .put(`/v1/users/100`)
       .send(updateUserDto)
       .expect(404);
+  });
+
+  it('DELETE - v1/users/:id should delete user', async () => {
+    const registeredUser = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: 'password123',
+      role: 'worker',
+    };
+
+    const res = await dbUtils.query<UserSchema>({
+      text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id;',
+      values: [
+        registeredUser.name,
+        registeredUser.email,
+        registeredUser.password,
+        registeredUser.role,
+      ],
+    });
+
+    const userId = res.rows[0].id;
+
+    await request(app.getHttpServer())
+      .delete(`/v1/users/${userId}`)
+      .expect(200);
+  });
+
+  it('DELETE - v1/users/:id should throw not found if it tries to delete a nonexisting user', async () => {
+    await request(app.getHttpServer()).delete(`/v1/users/100`).expect(404);
   });
 });

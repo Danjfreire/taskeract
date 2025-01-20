@@ -41,4 +41,20 @@ export class UsersService {
 
     return { data: res, error: null };
   }
+
+  async deleteUser(userId: number) {
+    const targetUser = await this.usersRepository.findUserById(userId);
+
+    if (!targetUser) {
+      return { data: null, error: 'not-found' };
+    }
+
+    try {
+      await this.usersRepository.deleteUser(userId);
+      return { data: true, error: null };
+    } catch (error) {
+      console.error(error);
+      return { data: false, error: 'internal-error' };
+    }
+  }
 }
