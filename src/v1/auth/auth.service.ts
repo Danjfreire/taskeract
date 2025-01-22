@@ -2,12 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { AuthRepository } from './auth.repository';
 import { compare } from 'bcrypt';
 import { UserSchema } from '../users/schemas/user.schema';
+import { JwtService } from '@nestjs/jwt';
+import { Result } from 'src/_shared/utils/result';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly authRepository: AuthRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async login(email: string, password: string) {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<Result<{ access_token: string }>> {
     const userSchema = await this.authRepository.findUserByEmail(email);
 
     if (!userSchema) {
@@ -20,19 +28,29 @@ export class AuthService {
     const isValid = await compare(password, userSchema.password);
 
     if (!isValid) {
-      console.log('Invalid password');
       return {
         data: null,
         error: 'not-found',
       };
     }
 
-    console.log(userSchema);
-    console.log(password);
-    // const isValid;
+    const token = await this.buildUserJWT(userSchema);
+
+    return {
+      data: { access_token: token },
+      error: null,
+    };
   }
 
   private async buildUserJWT(userSchema: UserSchema) {
-    console.log(userSchema);
+    const payload = {
+      sub: userSchema.id,
+      email: userSchema.email,
+      role: userSchema.role,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    return token;
   }
 }
