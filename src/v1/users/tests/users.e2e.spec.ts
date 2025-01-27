@@ -8,9 +8,14 @@ import { config } from 'dotenv';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserSchema } from '../schemas/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { AuthService } from 'src/v1/auth/auth.service';
+import { signInForTest } from 'src/_shared/test_utils/test-login';
+import { UsersService } from '../users.service';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
+  let authService: AuthService;
+  let userService: UsersService;
   let dbUtils: DatabaseTestUtils;
 
   beforeAll(async () => {
@@ -20,6 +25,8 @@ describe('UsersController (e2e)', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    authService = moduleRef.get<AuthService>(AuthService);
+    userService = moduleRef.get<UsersService>(UsersService);
     await app.init();
 
     dbUtils = new DatabaseTestUtils();
@@ -36,6 +43,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('POST - v1/users should create a user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const createUserDto: CreateUserDto = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -45,6 +56,7 @@ describe('UsersController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/v1/users')
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .send(createUserDto)
       .expect(201);
 
@@ -56,6 +68,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('GET - v1/users should return a list of users', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const registeredUsers = [
       {
         name: 'John Doe',
@@ -80,10 +96,11 @@ describe('UsersController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/v1/users`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .expect(200);
 
     expect(response.body).toBeDefined();
-    expect(response.body.length).toBe(2);
+    expect(response.body.length).toBe(3); // 2 registered users + 1 admin user
     expect(response.body).toContainEqual({
       id: expect.any(Number),
       name: registeredUsers[0].name,
@@ -101,6 +118,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('PUT - v1/users/:id should update a user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const registeredUser = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -126,6 +147,7 @@ describe('UsersController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .put(`/v1/users/${userId}`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .send(updateUserDto)
       .expect(200);
 
@@ -137,6 +159,10 @@ describe('UsersController (e2e)', () => {
   });
 
   it('PUT - v1/users/:id should deactivate a user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const registeredUser = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -162,6 +188,7 @@ describe('UsersController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .put(`/v1/users/${userId}`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .send(updateUserDto)
       .expect(200);
 
@@ -174,17 +201,26 @@ describe('UsersController (e2e)', () => {
   });
 
   it('PUT - v1/users/:id should throw not found if it tries to update a nonexisting user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const updateUserDto: UpdateUserDto = {
       name: 'John Doesnt',
     };
 
     await request(app.getHttpServer())
       .put(`/v1/users/100`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .send(updateUserDto)
       .expect(404);
   });
 
   it('DELETE - v1/users/:id should delete user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const registeredUser = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -206,10 +242,17 @@ describe('UsersController (e2e)', () => {
 
     await request(app.getHttpServer())
       .delete(`/v1/users/${userId}`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
       .expect(200);
   });
 
   it('DELETE - v1/users/:id should throw not found if it tries to delete a nonexisting user', async () => {
-    await request(app.getHttpServer()).delete(`/v1/users/100`).expect(404);
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+    await request(app.getHttpServer())
+      .delete(`/v1/users/100`)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
+      .expect(404);
   });
 });

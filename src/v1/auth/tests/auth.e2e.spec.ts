@@ -8,10 +8,15 @@ import { AuthModule } from '../auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/v1/users/dto/create-user.dto';
 import { UsersModule } from 'src/v1/users/users.module';
+import { signInForTest } from 'src/_shared/test_utils/test-login';
+import { AuthService } from '../auth.service';
+import { UsersService } from 'src/v1/users/users.service';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let dbUtils: DatabaseTestUtils;
+  let authService: AuthService;
+  let userService: UsersService;
   let jwtService: JwtService;
 
   beforeAll(async () => {
@@ -21,6 +26,8 @@ describe('AuthController (e2e)', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    authService = moduleRef.get<AuthService>(AuthService);
+    userService = moduleRef.get<UsersService>(UsersService);
     await app.init();
 
     jwtService = moduleRef.get<JwtService>(JwtService);
@@ -39,6 +46,10 @@ describe('AuthController (e2e)', () => {
   });
 
   it('POST - v1/auth/login should login a user', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
     const createUserDTO: CreateUserDto = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -46,13 +57,18 @@ describe('AuthController (e2e)', () => {
       role: 'worker',
     };
 
-    await request(app.getHttpServer()).post('/v1/users').send(createUserDTO);
+    await request(app.getHttpServer())
+      .post('/v1/users')
+      .send(createUserDTO)
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
+      .expect(201);
 
     const loginUserDto = {
       email: createUserDTO.email,
-      password: createUserDTO.password,
+      password: 'password123',
     };
 
+    // attempt to login with the newly created user
     const response = await request(app.getHttpServer())
       .post('/v1/auth/login')
       .send(loginUserDto)
@@ -64,6 +80,9 @@ describe('AuthController (e2e)', () => {
   });
 
   it('POST - v1/auth/login should throw unauthorized exception if user credentials are wrong', async () => {
+    const signInResponse = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
     const createUserDTO: CreateUserDto = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -71,7 +90,10 @@ describe('AuthController (e2e)', () => {
       role: 'worker',
     };
 
-    await request(app.getHttpServer()).post('/v1/users').send(createUserDTO);
+    await request(app.getHttpServer())
+      .post('/v1/users')
+      .set('Authorization', `Bearer ${signInResponse.data.access_token}`)
+      .send(createUserDTO);
 
     const loginUserDto = {
       email: createUserDTO.email,
