@@ -3,13 +3,13 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { DatabaseTestUtils } from 'src/_shared/test_utils/database-test.utils';
 import { config } from 'dotenv';
-import { CreateUserDto } from 'src/v1/users/dto/create-user.dto';
 import { signInForTest } from 'src/_shared/test_utils/test-login';
 import { UsersService } from 'src/v1/users/users.service';
 import { ProjectsModule } from '../projects.module';
 import { AuthService } from 'src/v1/auth/auth.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UsersModule } from 'src/v1/users/users.module';
+import { Project } from '../models/project.model';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -32,27 +32,42 @@ describe('AuthController (e2e)', () => {
     dbUtils = new DatabaseTestUtils();
   });
 
-  afterEach(async () => {});
+  afterEach(async () => {
+    await dbUtils.truncateTable('users');
+    await dbUtils.truncateTable('projects');
+  });
 
   afterAll(async () => {
     await app.close();
   });
 
   it('POST - v1/projects should register a project', async () => {
-    const createProjectDTO = {
+    const res = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
+    const date = new Date();
+    const createProjectDTO: CreateProjectDto = {
       title: 'Project 1',
       description: 'Description 1',
-      startDate: new Date().toISOString(),
+      startDate: date.toISOString(),
     };
-
-    console.log(createProjectDTO);
 
     const response = await request(app.getHttpServer())
       .post('/v1/projects')
-      .send(createProjectDTO);
+      .set('Authorization', `Bearer ${res.data.access_token}`)
+      .send(createProjectDTO)
+      .expect(201);
 
-    console.log('Response: ', response.body);
+    const expectedProject: Project = {
+      id: expect.any(Number),
+      title: 'Project 1',
+      description: 'Description 1',
+      startDate: date.toISOString(),
+      endDate: null,
+      status: 'planned',
+    };
 
-    expect(response.body).toBeDefined();
+    expect(response.body).toEqual(expectedProject);
   });
 });

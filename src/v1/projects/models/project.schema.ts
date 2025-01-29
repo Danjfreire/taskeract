@@ -4,7 +4,7 @@ export interface ProjectSchema {
   id: number;
   title: string;
   description: string;
-  startDate: Date;
-  endDate: Date | null;
+  start_date: Date;
+  end_date: null | Date;
   status: ProjectStatus;
 }
