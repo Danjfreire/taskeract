@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { UsersModule } from '../users.module';
 import { DatabaseTestUtils } from 'src/_shared/test_utils/database-test.utils';
-import { CREATE_TABLE_USERS } from 'src/_shared/test_utils/db_test_queries/create_table_users';
 import { config } from 'dotenv';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserSchema } from '../schemas/user.schema';
@@ -30,8 +29,8 @@ describe('UsersController (e2e)', () => {
     await app.init();
 
     dbUtils = new DatabaseTestUtils();
-    await dbUtils.dropTable('users');
-    await dbUtils.query(CREATE_TABLE_USERS);
+    // await dbUtils.dropTable('users');
+    // await dbUtils.query(CREATE_TABLE_USERS);
   });
 
   afterEach(async () => {

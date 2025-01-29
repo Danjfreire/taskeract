@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { DatabaseTestUtils } from 'src/_shared/test_utils/database-test.utils';
-import { CREATE_TABLE_USERS } from 'src/_shared/test_utils/db_test_queries/create_table_users';
 import { config } from 'dotenv';
 import { AuthModule } from '../auth.module';
 import { JwtService } from '@nestjs/jwt';
@@ -33,8 +32,8 @@ describe('AuthController (e2e)', () => {
     jwtService = moduleRef.get<JwtService>(JwtService);
 
     dbUtils = new DatabaseTestUtils();
-    await dbUtils.dropTable('users');
-    await dbUtils.query(CREATE_TABLE_USERS);
+    // await dbUtils.dropTable('users');
+    // await dbUtils.query(CREATE_TABLE_USERS);
   });
 
   afterEach(async () => {

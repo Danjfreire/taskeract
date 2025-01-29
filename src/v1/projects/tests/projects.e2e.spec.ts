@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { DatabaseTestUtils } from 'src/_shared/test_utils/database-test.utils';
-import { CREATE_TABLE_USERS } from 'src/_shared/test_utils/db_test_queries/create_table_users';
 import { config } from 'dotenv';
 import { CreateUserDto } from 'src/v1/users/dto/create-user.dto';
 import { signInForTest } from 'src/_shared/test_utils/test-login';
@@ -10,7 +9,6 @@ import { UsersService } from 'src/v1/users/users.service';
 import { ProjectsModule } from '../projects.module';
 import { AuthService } from 'src/v1/auth/auth.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
-import exp from 'constants';
 import { UsersModule } from 'src/v1/users/users.module';
 
 describe('AuthController (e2e)', () => {
@@ -32,9 +30,6 @@ describe('AuthController (e2e)', () => {
     await app.init();
 
     dbUtils = new DatabaseTestUtils();
-    // await dbUtils.dropTable('users');
-    // await dbUtils.dropTable('projects');
-    // await dbUtils.query(CREATE_TABLE_USERS);
   });
 
   afterEach(async () => {});

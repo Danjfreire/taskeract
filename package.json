@@ -18,8 +18,12 @@
     "services:test:down": "docker compose down database_test ",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "npm run services:test:up && jest --coverage --runInBand && npm run services:test:down",
+    "pretest": "npm run services:test:up && node-pg-migrate --envPath=.env.test up",
+    "test": "jest --coverage --runInBand",
+    "posttest": "npm run services:test:down",
+    "pretest:watch": "npm run services:test:up && node-pg-migrate --envPath=.env.test up",
     "test:watch": "npm run services:test:up && jest --watch --runInBand",
+    "posttest:watch": "npm run services:test:down",
     "migrations:create": "node-pg-migrate --envPath=.env.development create",
     "migrations:dev:up": "npm run services:dev:up && node-pg-migrate --envPath=.env.development up"
   },
