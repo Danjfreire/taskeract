@@ -11,7 +11,7 @@ import { CreateProjectDto } from '../dto/create-project.dto';
 import { UsersModule } from 'src/v1/users/users.module';
 import { Project } from '../models/project.model';
 
-describe('AuthController (e2e)', () => {
+describe('Projects(e2e)', () => {
   let app: INestApplication;
   let dbUtils: DatabaseTestUtils;
   let authService: AuthService;

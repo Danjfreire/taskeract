@@ -10,7 +10,7 @@ export class DatabaseService {
       const result = await dbClient.query(query);
       return result;
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       throw error;
     } finally {
       await dbClient.end();

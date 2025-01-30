@@ -52,8 +52,9 @@ export class UsersService {
     try {
       await this.usersRepository.deleteUser(userId);
       return { data: true, error: null };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return { data: false, error: 'internal-error' };
     }
   }

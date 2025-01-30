@@ -18,8 +18,6 @@ export class ProjectsRepository {
   }
 
   private convert(schema: ProjectSchema): Project {
-    console.log('Type of start date is:', typeof schema.start_date);
-
     return {
       id: schema.id,
       title: schema.title,
