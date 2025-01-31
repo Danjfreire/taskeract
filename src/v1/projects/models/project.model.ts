@@ -1,4 +1,5 @@
-export type ProjectStatus = 'planned' | 'ongoing' | 'completed';
+export const PROJECT_STATUSES = ['planned', 'ongoing', 'completed'] as const;
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export interface Project {
   id: number;

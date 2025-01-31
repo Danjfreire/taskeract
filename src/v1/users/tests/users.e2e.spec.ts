@@ -128,17 +128,9 @@ describe('UsersController (e2e)', () => {
       role: 'worker',
     };
 
-    const res = await dbUtils.query<UserSchema>({
-      text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id;',
-      values: [
-        registeredUser.name,
-        registeredUser.email,
-        registeredUser.password,
-        registeredUser.role,
-      ],
-    });
+    const res = await userService.createUser(registeredUser);
 
-    const userId = res.rows[0].id;
+    const userId = res.id;
 
     const updateUserDto: UpdateUserDto = {
       name: 'John Doesnt',

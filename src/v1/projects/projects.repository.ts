@@ -17,6 +17,35 @@ export class ProjectsRepository {
     return this.convert(res.rows[0]);
   }
 
+  async findProjectById(id: number): Promise<Project | null> {
+    const res = await this.db.query<ProjectSchema>({
+      text: 'SELECT * FROM projects WHERE id = $1',
+      values: [id],
+    });
+
+    if (res.rowCount === 0) {
+      return null;
+    }
+
+    return this.convert(res.rows[0]);
+  }
+
+  async updateProject(id: number, project: Project): Promise<Project> {
+    const res = await this.db.query<ProjectSchema>({
+      text: `UPDATE projects SET title = $1, description = $2, start_date = $3, end_date = $4, status = $5 WHERE id = $6 RETURNING *`,
+      values: [
+        project.title,
+        project.description,
+        new Date(project.startDate),
+        new Date(project.endDate),
+        project.status,
+        id,
+      ],
+    });
+
+    return this.convert(res.rows[0]);
+  }
+
   private convert(schema: ProjectSchema): Project {
     return {
       id: schema.id,

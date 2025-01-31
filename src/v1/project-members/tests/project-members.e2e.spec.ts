@@ -89,7 +89,7 @@ describe('ProjectMembers (e2e)', () => {
 
     // ASSERT
     await request(app.getHttpServer())
-      .post(`/v1/projects/${project.id}/members`)
+      .post(`/v1/projects/${project.data.id}/members`)
       .set('Authorization', `Bearer ${res.data.access_token}`)
       .send(addProjetMemberDto)
       .expect(201);
