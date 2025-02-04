@@ -9,5 +9,6 @@ import { DatabaseModule } from 'src/_shared/database/database.module';
   imports: [AuthModule, DatabaseModule],
   controllers: [ProjectsController],
   providers: [ProjectsService, ProjectsRepository],
+  exports: [ProjectsService],
 })
 export class ProjectsModule {}

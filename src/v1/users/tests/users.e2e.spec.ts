@@ -183,7 +183,6 @@ describe('UsersController (e2e)', () => {
       .send(updateUserDto)
       .expect(200);
 
-    expect(response.body).toBeDefined();
     expect(response.body.id).toBeDefined();
     expect(response.body.name).toBe(registeredUser.name);
     expect(response.body.email).toBe(registeredUser.email);
