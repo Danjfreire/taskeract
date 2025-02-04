@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   NotFoundException,
   Param,
   Post,
@@ -36,5 +37,15 @@ export class ProjectsController {
     }
 
     return res.data;
+  }
+
+  @AllowWithRole('admin')
+  @Delete('/:id')
+  async deleteProject(@Param('id') id: number) {
+    const res = await this.projectsService.deleteProject(id);
+
+    if (res.error !== null) {
+      throw new NotFoundException('project-not-found');
+    }
   }
 }

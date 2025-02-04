@@ -42,7 +42,7 @@ export class UsersService {
     return { data: res, error: null };
   }
 
-  async deleteUser(userId: number) {
+  async deleteUser(userId: number): Promise<Result<boolean>> {
     const targetUser = await this.usersRepository.findUserById(userId);
 
     if (!targetUser) {
@@ -55,7 +55,7 @@ export class UsersService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // console.error(error);
-      return { data: false, error: 'internal-error' };
+      return { data: null, error: 'internal-error' };
     }
   }
 }

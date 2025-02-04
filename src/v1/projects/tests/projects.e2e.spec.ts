@@ -120,4 +120,34 @@ describe('Projects(e2e)', () => {
     expect(res.body.title).toBe('Project 2');
     expect(res.body.description).toBe('Description 2');
   });
+
+  it('DELETE - v1/projects/:id should delete a project', async () => {
+    const auth = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
+    const registeredProject: CreateProjectDto = {
+      title: 'Project 1',
+      description: 'Description 1',
+      startDate: new Date().toISOString(),
+    };
+
+    const project = await projectService.createProject(registeredProject);
+
+    await request(app.getHttpServer())
+      .delete(`/v1/projects/${project.data.id}`)
+      .set('Authorization', `Bearer ${auth.data.access_token}`)
+      .expect(200);
+  });
+
+  it('DELETE - v1/projects/:id should throw an error if project doesnt exist', async () => {
+    const auth = await signInForTest(authService, userService, {
+      userRole: 'admin',
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/v1/projects/2`)
+      .set('Authorization', `Bearer ${auth.data.access_token}`)
+      .expect(404);
+  });
 });

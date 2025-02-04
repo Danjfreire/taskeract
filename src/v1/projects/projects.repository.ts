@@ -46,6 +46,13 @@ export class ProjectsRepository {
     return this.convert(res.rows[0]);
   }
 
+  async deleteProject(id: number): Promise<void> {
+    await this.db.query({
+      text: 'DELETE FROM projects WHERE id = $1',
+      values: [id],
+    });
+  }
+
   private convert(schema: ProjectSchema): Project {
     return {
       id: schema.id,

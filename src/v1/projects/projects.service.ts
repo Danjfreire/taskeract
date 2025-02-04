@@ -35,4 +35,20 @@ export class ProjectsService {
 
     return { data: updatedProject, error: null };
   }
+
+  async deleteProject(id: number): Promise<Result<boolean>> {
+    const project = await this.projectRepo.findProjectById(id);
+
+    if (!project) {
+      return { data: null, error: 'not-found' };
+    }
+
+    try {
+      await this.projectRepo.deleteProject(id);
+      return { data: true, error: null };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return { data: null, error: 'internal-error' };
+    }
+  }
 }
