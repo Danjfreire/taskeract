@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  UnauthorizedException,
   UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
@@ -20,6 +21,10 @@ export class TasksController {
     const res = await this.tasksService.createTask(dto);
 
     if (res.error) {
+      if (res.error === 'unauthorized') {
+        throw new UnauthorizedException();
+      }
+
       throw new UnprocessableEntityException();
     }
 

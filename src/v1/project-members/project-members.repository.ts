@@ -6,7 +6,7 @@ import { ProjectMemberSchema } from './models/project-member.schema';
 export class ProjectMembersRepository {
   constructor(private db: DatabaseService) {}
 
-  async addMembersToProject(projectId: string, members: number[]) {
+  async addMembersToProject(projectId: number, members: number[]) {
     await this.db.query<ProjectMemberSchema>({
       text: `
       INSERT INTO project_members (project_id, user_id ) 
@@ -14,5 +14,16 @@ export class ProjectMembersRepository {
       RETURNING *;`,
       values: [projectId, ...members],
     });
+  }
+
+  async isProjectMember(projectId: number, userId: number): Promise<boolean> {
+    const res = await this.db.query<ProjectMemberSchema>({
+      text: `
+      SELECT * FROM project_members 
+      WHERE project_id = $1 AND user_id = $2;`,
+      values: [projectId, userId],
+    });
+
+    return res.rows.length > 0;
   }
 }

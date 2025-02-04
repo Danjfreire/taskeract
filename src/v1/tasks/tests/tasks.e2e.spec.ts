@@ -11,27 +11,27 @@ import { ProjectsService } from 'src/v1/projects/projects.service';
 import { CreateProjectDto } from 'src/v1/projects/dto/create-project.dto';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { TasksModule } from '../tasks.module';
+import { ProjectsModule } from 'src/v1/projects/projects.module';
 
 describe('Projects(e2e)', () => {
   let app: INestApplication;
   let dbUtils: DatabaseTestUtils;
   let authService: AuthService;
   let userService: UsersService;
-  //   let tasksService: TasksService;
   let projectService: ProjectsService;
 
   beforeAll(async () => {
     config({ path: '.env.test' });
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [TasksModule, UsersModule],
+      imports: [TasksModule, UsersModule, ProjectsModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     authService = moduleRef.get<AuthService>(AuthService);
     userService = moduleRef.get<UsersService>(UsersService);
-    // tasksService = moduleRef.get<TasksService>(TasksService);
     projectService = moduleRef.get<ProjectsService>(ProjectsService);
+
     await app.init();
 
     dbUtils = new DatabaseTestUtils();
@@ -47,11 +47,11 @@ describe('Projects(e2e)', () => {
     await app.close();
   });
 
-  it('POST - v1/projects should register a task', async () => {
+  it('POST - v1/tasks should register a task', async () => {
+    // SETUP
     const res = await signInForTest(authService, userService, {
       userRole: 'admin',
     });
-
     const date = new Date();
     const createProjectDTO: CreateProjectDto = {
       title: 'Project 1',
@@ -70,6 +70,7 @@ describe('Projects(e2e)', () => {
       status: 'pending',
     };
 
+    // ASSERT
     const response = await request(app.getHttpServer())
       .post('/v1/tasks')
       .set('Authorization', `Bearer ${res.data.access_token}`)

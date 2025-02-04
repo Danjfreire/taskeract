@@ -19,7 +19,7 @@ export class ProjectMembersController {
   @AllowWithRole('admin')
   @Post()
   async addMembers(
-    @Param('projectId') projectId: string,
+    @Param('projectId') projectId: number,
     @Body() body: AddProjectMembersDto,
   ) {
     const res = await this.projectMembersService.addMembersToProject(

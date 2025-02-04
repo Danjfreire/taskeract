@@ -9,5 +9,6 @@ import { AuthModule } from '../auth/auth.module';
   imports: [DatabaseModule, AuthModule],
   controllers: [ProjectMembersController],
   providers: [ProjectMembersService, ProjectMembersRepository],
+  exports: [ProjectMembersService],
 })
 export class ProjectMembersModule {}

@@ -7,7 +7,7 @@ export class ProjectMembersService {
   constructor(private readonly projectMembersRepo: ProjectMembersRepository) {}
 
   async addMembersToProject(
-    projectId: string,
+    projectId: number,
     members: number[],
   ): Promise<Result<void>> {
     try {
@@ -18,5 +18,9 @@ export class ProjectMembersService {
     } catch (error) {
       return { data: null, error: 'unprocessable' };
     }
+  }
+
+  async isProjectMember(projectId: number, userId: number): Promise<boolean> {
+    return this.projectMembersRepo.isProjectMember(projectId, userId);
   }
 }
