@@ -60,6 +60,13 @@ export class TaskRepository {
     return this.convert(res.rows[0]);
   }
 
+  async deleteTask(id: number): Promise<void> {
+    await this.db.query({
+      text: 'DELETE FROM tasks WHERE id = $1',
+      values: [id],
+    });
+  }
+
   private convert(schema: TaskSchema): Task {
     return {
       id: schema.id,

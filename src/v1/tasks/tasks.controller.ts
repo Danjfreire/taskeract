@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   NotFoundException,
   Param,
   Post,
@@ -64,5 +65,15 @@ export class TasksController {
     }
 
     return res.data;
+  }
+
+  @AllowWithRole('admin')
+  @Delete('/:taskId')
+  async deleteTask(@Param('taskId') taskId: number) {
+    const res = await this.tasksService.deleteTask(taskId);
+
+    if (res.error) {
+      throw new NotFoundException();
+    }
   }
 }

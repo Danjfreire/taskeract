@@ -62,4 +62,20 @@ export class TasksService {
 
     return { data: updatedTask, error: null };
   }
+
+  async deleteTask(taskId: number): Promise<Result<boolean>> {
+    const task = await this.taskRepository.findTask(taskId);
+
+    if (!task) {
+      return { data: null, error: 'not-found' };
+    }
+
+    try {
+      await this.taskRepository.deleteTask(taskId);
+      return { data: true, error: null };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return { data: null, error: 'internal-error' };
+    }
+  }
 }
