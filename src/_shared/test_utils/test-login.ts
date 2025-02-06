@@ -18,10 +18,10 @@ export async function signInForTest(
     password,
     role,
   };
-  await userService.createUser(createUserDto);
+  const user = await userService.createUser(createUserDto);
 
   // Sign in
   const signInResponse = await authService.login(email, password);
 
-  return signInResponse;
+  return { data: { access_token: signInResponse.data.access_token, ...user } };
 }
