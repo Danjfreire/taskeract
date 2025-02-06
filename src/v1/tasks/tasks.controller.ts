@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Param,
   Post,
   UnauthorizedException,
   UnprocessableEntityException,
@@ -12,13 +13,16 @@ import { TasksService } from './tasks.service';
 import { Task } from './models/task.model';
 
 @UseGuards(AuthGuard)
-@Controller('v1/tasks')
+@Controller('v1/projects/:projectId/tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  async createTask(@Body() dto: CreateTaskDto): Promise<Task> {
-    const res = await this.tasksService.createTask(dto);
+  async createTask(
+    @Param('projectId') projectId: number,
+    @Body() dto: CreateTaskDto,
+  ): Promise<Task> {
+    const res = await this.tasksService.createTask(projectId, dto);
 
     if (res.error) {
       if (res.error === 'unauthorized') {

@@ -1,10 +1,4 @@
-import {
-  IsDateString,
-  IsIn,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 import {
   TASK_PRIORITIES,
   TASK_STATUSES,
@@ -23,9 +17,6 @@ export class CreateTaskDto {
   @IsDateString()
   @IsOptional()
   public readonly due_date?: string;
-
-  @IsNumber()
-  public readonly project_id: number;
 
   @IsIn(TASK_PRIORITIES)
   public readonly priority: TaskPriority;

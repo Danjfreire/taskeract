@@ -8,9 +8,12 @@ import { Task } from './models/task.model';
 export class TasksService {
   constructor(private readonly taskRepository: TaskRepository) {}
 
-  async createTask(dto: CreateTaskDto): Promise<Result<Task>> {
+  async createTask(
+    projectId: number,
+    dto: CreateTaskDto,
+  ): Promise<Result<Task>> {
     try {
-      const task = await this.taskRepository.createTask(dto);
+      const task = await this.taskRepository.createTask(projectId, dto);
 
       return { data: task, error: null };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

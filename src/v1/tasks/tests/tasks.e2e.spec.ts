@@ -47,7 +47,7 @@ describe('Projects(e2e)', () => {
     await app.close();
   });
 
-  it('POST - v1/tasks should register a task', async () => {
+  it('POST - v1/projects/:id/tasks should register a task', async () => {
     // SETUP
     const res = await signInForTest(authService, userService, {
       userRole: 'admin',
@@ -65,14 +65,13 @@ describe('Projects(e2e)', () => {
       title: 'Task 1',
       description: 'Description 1',
       due_date: date.toISOString(),
-      project_id: project.data.id,
       priority: 'low',
       status: 'pending',
     };
 
     // ASSERT
     const response = await request(app.getHttpServer())
-      .post('/v1/tasks')
+      .post(`/v1/projects/${project.data.id}/tasks`)
       .set('Authorization', `Bearer ${res.data.access_token}`)
       .send(createTaskDTO)
       .expect(201);
@@ -80,13 +79,13 @@ describe('Projects(e2e)', () => {
     expect(response.body.id).toBeDefined();
     expect(response.body.title).toEqual(createTaskDTO.title);
     expect(response.body.description).toEqual(createTaskDTO.description);
-    expect(response.body.project_id).toEqual(createTaskDTO.project_id);
+    expect(response.body.project_id).toEqual(project.data.id);
     expect(response.body.priority).toEqual(createTaskDTO.priority);
     expect(response.body.status).toEqual(createTaskDTO.status);
     expect(response.body.due_date).toEqual(createTaskDTO.due_date);
   });
 
-  it('POST - v1/projects should not register a task if the project does not exists', async () => {
+  it('POST - v1/projects/:id/tasks should not register a task if the project does not exists', async () => {
     const res = await signInForTest(authService, userService, {
       userRole: 'admin',
     });
@@ -97,13 +96,12 @@ describe('Projects(e2e)', () => {
       title: 'Task 1',
       description: 'Description 1',
       due_date: date.toISOString(),
-      project_id: 10000,
       priority: 'low',
       status: 'pending',
     };
 
     await request(app.getHttpServer())
-      .post('/v1/tasks')
+      .post(`/v1/projects/8219389012/tasks`)
       .set('Authorization', `Bearer ${res.data.access_token}`)
       .send(createTaskDTO)
       .expect(422);

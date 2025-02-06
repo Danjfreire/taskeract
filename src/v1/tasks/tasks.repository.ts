@@ -8,14 +8,14 @@ import { TaskSchema } from './models/task.schema';
 export class TaskRepository {
   constructor(private readonly db: DatabaseService) {}
 
-  async createTask(dto: CreateTaskDto) {
+  async createTask(projectId: number, dto: CreateTaskDto) {
     const res = await this.db.query<TaskSchema>({
       text: `INSERT INTO tasks (title, description, due_date, project_id, priority, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       values: [
         dto.title,
         dto.description ?? null,
         dto.due_date ?? null,
-        dto.project_id,
+        projectId,
         dto.priority,
         dto.status,
       ],
