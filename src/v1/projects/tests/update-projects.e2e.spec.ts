@@ -9,11 +9,10 @@ import { ProjectsModule } from '../projects.module';
 import { AuthService } from 'src/v1/auth/auth.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UsersModule } from 'src/v1/users/users.module';
-import { Project } from '../models/project.model';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { ProjectsService } from '../projects.service';
 
-describe('Projects(e2e)', () => {
+describe('Projects - Update Project(e2e)', () => {
   let app: INestApplication;
   let dbUtils: DatabaseTestUtils;
   let authService: AuthService;
@@ -43,36 +42,6 @@ describe('Projects(e2e)', () => {
 
   afterAll(async () => {
     await app.close();
-  });
-
-  it('POST - v1/projects should register a project', async () => {
-    const res = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-
-    const date = new Date();
-    const createProjectDTO: CreateProjectDto = {
-      title: 'Project 1',
-      description: 'Description 1',
-      startDate: date.toISOString(),
-    };
-
-    const response = await request(app.getHttpServer())
-      .post('/v1/projects')
-      .set('Authorization', `Bearer ${res.data.access_token}`)
-      .send(createProjectDTO)
-      .expect(201);
-
-    const expectedProject: Project = {
-      id: expect.any(Number),
-      title: 'Project 1',
-      description: 'Description 1',
-      startDate: date.toISOString(),
-      endDate: null,
-      status: 'planned',
-    };
-
-    expect(response.body).toEqual(expectedProject);
   });
 
   it('PUT - v1/projects/:id should throw error if it tries to update a project that doesnt exist', async () => {
@@ -119,35 +88,5 @@ describe('Projects(e2e)', () => {
 
     expect(res.body.title).toBe('Project 2');
     expect(res.body.description).toBe('Description 2');
-  });
-
-  it('DELETE - v1/projects/:id should delete a project', async () => {
-    const auth = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-
-    const registeredProject: CreateProjectDto = {
-      title: 'Project 1',
-      description: 'Description 1',
-      startDate: new Date().toISOString(),
-    };
-
-    const project = await projectService.createProject(registeredProject);
-
-    await request(app.getHttpServer())
-      .delete(`/v1/projects/${project.data.id}`)
-      .set('Authorization', `Bearer ${auth.data.access_token}`)
-      .expect(200);
-  });
-
-  it('DELETE - v1/projects/:id should throw an error if project doesnt exist', async () => {
-    const auth = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-
-    await request(app.getHttpServer())
-      .delete(`/v1/projects/2`)
-      .set('Authorization', `Bearer ${auth.data.access_token}`)
-      .expect(404);
   });
 });
