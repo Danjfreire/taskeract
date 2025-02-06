@@ -16,7 +16,7 @@ import { TasksService } from '../tasks.service';
 import { UpdateTaskDto } from '../dto/edit-task.dto';
 import { ProjectMembersService } from 'src/v1/project-members/project-members.service';
 
-describe('Project tasks(e2e)', () => {
+describe('Tasks - Update Task(e2e)', () => {
   let app: INestApplication;
   let dbUtils: DatabaseTestUtils;
   let authService: AuthService;
@@ -54,66 +54,6 @@ describe('Project tasks(e2e)', () => {
 
   afterAll(async () => {
     await app.close();
-  });
-
-  it('POST - v1/projects/:id/tasks should register a task', async () => {
-    // SETUP
-    const res = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-    const date = new Date();
-    const createProjectDTO: CreateProjectDto = {
-      title: 'Project 1',
-      description: 'Description 1',
-      startDate: date.toISOString(),
-    };
-
-    const project = await projectService.createProject(createProjectDTO);
-
-    const createTaskDTO: CreateTaskDto = {
-      title: 'Task 1',
-      description: 'Description 1',
-      due_date: date.toISOString(),
-      priority: 'low',
-      status: 'pending',
-    };
-
-    // ASSERT
-    const response = await request(app.getHttpServer())
-      .post(`/v1/projects/${project.data.id}/tasks`)
-      .set('Authorization', `Bearer ${res.data.access_token}`)
-      .send(createTaskDTO)
-      .expect(201);
-
-    expect(response.body.id).toBeDefined();
-    expect(response.body.title).toEqual(createTaskDTO.title);
-    expect(response.body.description).toEqual(createTaskDTO.description);
-    expect(response.body.project_id).toEqual(project.data.id);
-    expect(response.body.priority).toEqual(createTaskDTO.priority);
-    expect(response.body.status).toEqual(createTaskDTO.status);
-    expect(response.body.due_date).toEqual(createTaskDTO.due_date);
-  });
-
-  it('POST - v1/projects/:id/tasks should not register a task if the project does not exists', async () => {
-    const res = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-
-    const date = new Date();
-
-    const createTaskDTO: CreateTaskDto = {
-      title: 'Task 1',
-      description: 'Description 1',
-      due_date: date.toISOString(),
-      priority: 'low',
-      status: 'pending',
-    };
-
-    await request(app.getHttpServer())
-      .post(`/v1/projects/8219389012/tasks`)
-      .set('Authorization', `Bearer ${res.data.access_token}`)
-      .send(createTaskDTO)
-      .expect(422);
   });
 
   it('PUT - v1/projects/:id/tasks/:id admin should update a task', async () => {
@@ -265,54 +205,6 @@ describe('Project tasks(e2e)', () => {
     await request(app.getHttpServer())
       .put(`/v1/projects/${project.data.id}/tasks/10000`)
       .set('Authorization', `Bearer ${user.data.access_token}`)
-      .send(updateTaskDTO)
-      .expect(404);
-  });
-
-  it('DELETE - v1/projects/:id/tasks/:id should delete task', async () => {
-    // SETUP
-    const res = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-    const date = new Date();
-    const createProjectDTO: CreateProjectDto = {
-      title: 'Project 1',
-      description: 'Description 1',
-      startDate: date.toISOString(),
-    };
-
-    const project = await projectService.createProject(createProjectDTO);
-
-    const createTaskDTO: CreateTaskDto = {
-      title: 'Task 1',
-      description: 'Description 1',
-      due_date: date.toISOString(),
-      priority: 'low',
-      status: 'pending',
-    };
-
-    const task = await taskService.createTask(project.data.id, createTaskDTO);
-
-    // ASSERT
-    await request(app.getHttpServer())
-      .delete(`/v1/projects/${project.data.id}/tasks/${task.data.id}`)
-      .set('Authorization', `Bearer ${res.data.access_token}`)
-      .expect(200);
-  });
-
-  it('DELETE - v1/projects/:id/tasks/:id should throw error if tries to delete a task that doestn exist', async () => {
-    // SETUP
-    const res = await signInForTest(authService, userService, {
-      userRole: 'admin',
-    });
-    const updateTaskDTO: UpdateTaskDto = {
-      title: 'Task 1 Updated',
-    };
-
-    // ASSERT
-    await request(app.getHttpServer())
-      .put(`/v1/projects/100000/tasks/10000`)
-      .set('Authorization', `Bearer ${res.data.access_token}`)
       .send(updateTaskDTO)
       .expect(404);
   });
