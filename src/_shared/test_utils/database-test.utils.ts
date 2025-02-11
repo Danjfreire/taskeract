@@ -1,4 +1,5 @@
 import { Client, QueryConfig, QueryResult } from 'pg';
+import { TABLES } from './table-names';
 
 export class DatabaseTestUtils {
   public async query<T>(query: string | QueryConfig): Promise<QueryResult<T>> {
@@ -19,6 +20,12 @@ export class DatabaseTestUtils {
     await this.query({
       text: `TRUNCATE TABLE ${tableName} CASCADE`,
     });
+  }
+
+  public async truncateDatabase() {
+    for (const key in TABLES) {
+      await this.truncateTable(TABLES[key]);
+    }
   }
 
   private async getNewClient(): Promise<Client> {
