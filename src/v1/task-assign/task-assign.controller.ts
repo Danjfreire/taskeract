@@ -40,10 +40,6 @@ export class TaskAssignController {
     @Param('taskId') taskId: number,
     @Param('userId') userId: number,
   ) {
-    const res = await this.taskAssignService.unnasignTask(taskId, userId);
-
-    if (res.error) {
-      throw new UnprocessableEntityException();
-    }
+    await this.taskAssignService.unnasignTask(taskId, userId);
   }
 }

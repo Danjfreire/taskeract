@@ -34,13 +34,8 @@ export class TaskAssignService {
   }
 
   async unnasignTask(taskId: number, userId: number): Promise<Result<void>> {
-    try {
-      await this.taskAssignRepo.unassignTask(taskId, userId);
-      return { data: null, error: null };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return { data: null, error: 'unprocessable' };
-    }
+    await this.taskAssignRepo.unassignTask(taskId, userId);
+    return { data: null, error: null };
   }
 
   async isTaskAssignee(taskId: number, userId: number): Promise<boolean> {
