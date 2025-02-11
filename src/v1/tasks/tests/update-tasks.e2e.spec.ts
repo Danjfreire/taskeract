@@ -15,6 +15,7 @@ import { ProjectsModule } from 'src/v1/projects/projects.module';
 import { TasksService } from '../tasks.service';
 import { UpdateTaskDto } from '../dto/edit-task.dto';
 import { ProjectMembersService } from 'src/v1/project-members/project-members.service';
+import { TaskAssignService } from 'src/v1/task-assign/task-assign.service';
 
 describe('Tasks - Update Task(e2e)', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('Tasks - Update Task(e2e)', () => {
   let projectService: ProjectsService;
   let projectMemberService: ProjectMembersService;
   let taskService: TasksService;
+  let taskAssignService: TaskAssignService;
 
   beforeAll(async () => {
     config({ path: '.env.test' });
@@ -40,6 +42,7 @@ describe('Tasks - Update Task(e2e)', () => {
       ProjectMembersService,
     );
     taskService = moduleRef.get<TasksService>(TasksService);
+    taskAssignService = moduleRef.get<TaskAssignService>(TaskAssignService);
 
     await app.init();
 
@@ -100,9 +103,9 @@ describe('Tasks - Update Task(e2e)', () => {
     expect(response.body.due_date).toEqual(createTaskDTO.due_date);
   });
 
-  it('PUT - v1/projects/:id/tasks/:id project member should update a task', async () => {
+  it('PUT - v1/projects/:id/tasks/:id task assignee should update a task', async () => {
     // SETUP
-    const res = await signInForTest(authService, userService, {
+    const user = await signInForTest(authService, userService, {
       userRole: 'worker',
     });
     const date = new Date();
@@ -114,7 +117,7 @@ describe('Tasks - Update Task(e2e)', () => {
 
     const project = await projectService.createProject(createProjectDTO);
     await projectMemberService.addMembersToProject(project.data.id, [
-      res.data.id,
+      user.data.id,
     ]);
 
     const createTaskDTO: CreateTaskDto = {
@@ -127,6 +130,12 @@ describe('Tasks - Update Task(e2e)', () => {
 
     const task = await taskService.createTask(project.data.id, createTaskDTO);
 
+    await taskAssignService.assignTask(
+      project.data.id,
+      task.data.id,
+      user.data.id,
+    );
+
     const updateTaskDTO: UpdateTaskDto = {
       title: 'Task 1 Updated',
     };
@@ -134,7 +143,7 @@ describe('Tasks - Update Task(e2e)', () => {
     // ASSERT
     const response = await request(app.getHttpServer())
       .put(`/v1/projects/${project.data.id}/tasks/${task.data.id}`)
-      .set('Authorization', `Bearer ${res.data.access_token}`)
+      .set('Authorization', `Bearer ${user.data.access_token}`)
       .send(updateTaskDTO)
       .expect(200);
 

@@ -42,4 +42,13 @@ export class TaskAssignService {
       return { data: null, error: 'unprocessable' };
     }
   }
+
+  async isTaskAssignee(taskId: number, userId: number): Promise<boolean> {
+    const isTaskAssignee = await this.taskAssignRepo.isTaskAssignee(
+      taskId,
+      userId,
+    );
+
+    return isTaskAssignee;
+  }
 }

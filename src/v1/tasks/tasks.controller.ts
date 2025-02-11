@@ -47,12 +47,11 @@ export class TasksController {
 
   @Put('/:taskId')
   async updateTask(
-    @Param('projectId') projectId: number,
     @Param('taskId') taskId: number,
     @Body() dto: UpdateTaskDto,
     @ReqUser() user: RequestUser,
   ): Promise<Task> {
-    const res = await this.tasksService.editTask(projectId, taskId, user, dto);
+    const res = await this.tasksService.editTask(taskId, user, dto);
 
     if (res.error) {
       if (res.error === 'unauthorized') {

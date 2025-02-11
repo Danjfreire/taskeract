@@ -18,4 +18,13 @@ export class TaskAssignRepository {
       values: [taskId, userId],
     });
   }
+
+  async isTaskAssignee(taskId: number, userId: number): Promise<boolean> {
+    const res = await this.db.query({
+      text: `SELECT * FROM task_assignee WHERE task_id = $1 AND user_id = $2`,
+      values: [taskId, userId],
+    });
+
+    return res.rows.length > 0;
+  }
 }

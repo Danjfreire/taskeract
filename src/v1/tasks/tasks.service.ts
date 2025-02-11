@@ -4,14 +4,14 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Result } from 'src/_shared/utils/result';
 import { Task } from './models/task.model';
 import { RequestUser } from '../auth/decorators/request-user.decorator';
-import { ProjectMembersService } from '../project-members/project-members.service';
 import { UpdateTaskDto } from './dto/edit-task.dto';
+import { TaskAssignService } from '../task-assign/task-assign.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private readonly taskRepository: TaskRepository,
-    private readonly projectMemberService: ProjectMembersService,
+    private readonly taskAssignService: TaskAssignService,
   ) {}
 
   async createTask(
@@ -29,18 +29,17 @@ export class TasksService {
   }
 
   async editTask(
-    projectId: number,
     taskId: number,
     user: RequestUser,
     dto: UpdateTaskDto,
   ): Promise<Result<Task>> {
     // check if user can edit task
     const isAdmin = user.role === 'admin';
-    const isProjectMember = await this.projectMemberService.isProjectMember(
-      projectId,
+    const isTaskAssignee = await this.taskAssignService.isTaskAssignee(
+      taskId,
       user.id,
     );
-    const canEdit = isAdmin || isProjectMember;
+    const canEdit = isAdmin || isTaskAssignee;
 
     if (!canEdit) {
       return { data: null, error: 'unauthorized' };
